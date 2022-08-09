@@ -1,7 +1,7 @@
 # simple_shell
 ## Colaborative project
-	Johana Casallas
-	Rodrigo Zárate A.
+	Abdulrazaq Babi
+        Akanimo Asuquo.
 ## 0x16. C - Simple Shell
 ### Write a simple UNIX command interpreter.
 ## Learning Objectives
@@ -136,9 +136,6 @@ The prompt get back to the TERMINAL
 #### Special Thanks to
 
 	https://github.com/JuanDAC
-	https://github.com/juanescorreap
-	https://github.com/Cr1st14n0l101
-	https://github.com/anversa-pro
 
 for all the help
 
