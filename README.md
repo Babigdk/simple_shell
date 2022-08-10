@@ -1,144 +1,182 @@
-# simple_shell
-## Colaborative project
-	Abdulrazaq Babi
-        Akanimo Asuquo.
-## 0x16. C - Simple Shell
-### Write a simple UNIX command interpreter.
-## Learning Objectives
+﻿# Simple Unix Command Line Interpreter #
+![simpleshell](https://i.imgur.com/hz1XxTx.png)
 
-    How does a shell work
-    What is a pid and a ppid
-    How to manipulate the environment of the current process
-    What is the difference between a function and a system call
-    How to create processes
-    What are the three prototypes of main
-    How does the shell use the PATH to find the programs
-    How to execute another program with the execve system call
-    How to suspend the execution of a process until one of its children terminates
-    What is EOF / “end-of-file”?
+# Overview #
+The program codes contained in this repository are used to implement a simple command line interpreter (simple shell).  
 
-### List of allowed functions and system calls
-    access (man 2 access)
-    chdir (man 2 chdir)
-    close (man 2 close)
-    closedir (man 3 closedir)
-    execve (man 2 execve)
-    exit (man 3 exit)
-    _exit (man 2 _exit)
-    fflush (man 3 fflush)
-    fork (man 2 fork)
-    free (man 3 free)
-    getcwd (man 3 getcwd)
-    getline (man 3 getline)
-    getpid (man 2 getpid)
-    isatty (man 3 isatty)
-    kill (man 2 kill)
-    malloc (man 3 malloc)
-    open (man 2 open)
-    opendir (man 3 opendir)
-    perror (man 3 perror)
-    read (man 2 read)
-    readdir (man 3 readdir)
-    signal (man 2 signal)
-    stat (__xstat) (man 2 stat)
-    lstat (__lxstat) (man 2 lstat)
-    fstat (__fxstat) (man 2 fstat)
-    strtok (man 3 strtok)
-    wait (man 2 wait)
-    waitpid (man 2 waitpid)
-    wait3 (man 2 wait3)
-    wait4 (man 2 wait4)
-    write (man 2 write)
+# Background #
+0. Who designed and implemented the original Unix operating system?  
+Kenneth Lane Thompson designed and implemented the original UNIX operating system at Bell Labs.  
 
-## Compilation
+1. Who wrote the first version of the Unix shell?  
+Thompson also wrote the first version of the Unix shell.  The first version was called the Thompson shell, **sh**.  It was modeled after the Multics shell, also invented at Bell Labs.  
 
-The program must be compiled this way:
+2. Who invented the B programming language (the direct predecessor to the C programming language)?  
+Additionally, Thompson invented the B programming language for Unix shell.  Later, Dennis Ritchie rewrote B programming language into a higher-leverl language known today as C.  
 
-`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh`
+3. Who is Ken Thompson?  
+Thompson pioneered computer science while at Bell Labs in the 1960s.  It's where he invented the original Unix operating system and then, B programming language.  Interestingly, the first program written in the first version of Unix was a chess game.  Thompson worked collaboratively with Ritchie to further develop the Unix operating system.  
 
-## How to use
+4. How does a shell work?  
+Shell is a command-line interpreter that provides user interface for Unix operating systems.  Users interacts with the shell using a terminal emulator or serial hardware connections.  The shell takes user commands and passes them to the underlying operating system to execute.  In the shell, there are configuration files containing commands.  These files set the variables used to find executables, control shell behavior, etc.  
 
-Download or fork the repo, unzip and compile as ilustrated before.
-Type `./hsh` after compilation ends.
+5. What is a **pid** and a **ppid**?  
+Every program loaded and started in the operating system is a process.  Every process has a unique id known as the process id (**pid**) attached to it.  The **pid** is used by functions and system calls to interact and manipulate other processes.  Every **pid** has a parent id (**ppid**).  In order to retrieve the pid or ppid for a current process, use functions **getpid** and **getppid** respectively.  The diagram below shows the lineage of these processes.  
 
-### Simple command
-At the prompt type usual commands like *ls* giving its full path **/bin/ls** in my case
+![5. What are PID and PPID?](https://i.imgur.com/hpsCKIP.png)
 
-`$ /bin/ls`
+6. How to manipulate the environment of the current process?  
+The environment is an array of strings pointed to by global variable, **environ** defined in the unistd header file.  These strings are formatted as such: var=value, where var is the variable name and value is the value.  Essentially, these strings are environment variables used to provide user information to programs such as name of logged-in user or user's login directory.  Additionally, these variables could have been imported from a parent process.  A full list if these variables could be displayed with the **env** or **printenv** command.  Additionally, the user could use **getenv** to search and obtain a specific environment variable.  
 
-That will list the files and directories in the current working directory
-if you dont give the PATH an error message will indicate Command not found
-For future develop we will create a function that looks for the command in the PATH so you'll be able to use these comands just by typing the command itself.
+7. What is the difference between a function and a system call?  
+A function is used in a program to make a request to perform a specific task.  A system call is a request to the kernal to access a resource.  
 
-	break_input.c 		main.c 			simple_shell.h
-	builtins.c 		man_1_simple_shell 	str_comp.c'
+8. How to create processes?  
+The system call, **fork** could be used to create a new process that's a duplicate of the parent process called a child process.  Both the child process and parent process will continue to run but with different stacks, datas and heaps.  If the return value of **fork** is 0, then it's the child process.  If the return value is 1, then it's the parent process.  
 
-### Simple command with argument
-At the prompt type usual commands like ls giving its full path /bin/ls in my case and use the arguments -l in this case.
+9. What are the three prototypes of main?  
+The main function is the entry point to any program and it's where the operating system passes control to it.  The following are three prototypes of a main function that differs in their parameters.  
+```C
+int main(void);
+int main(int argc, char **argv);
+int main(int argc, char **argv, char **env);
+```
 
-`$ /bin/ls`
+10. How does the shell use the **PATH** to find the programs?  
+**PATH** is an environment variable that produces a colon delimited list of directories when the command **echo $PATH** is executed (see example below).  Executable files for running applications and commands are stored in different paths.  For example, the executable file for the **ls -l** command is stored in /bin/ls which stores user utilities related to directory navigation and file management.  The **-l** is an optional argument that lists file types, permissions, hard links, owner, group, size, last-modified date and filename.  If a user wants to use an executable file and it's stored in **PATH**, then, the user only needs to type the file name on the command line to find it.  
 
-That will list the files and directories in the current working directory in the LONG format meaning that it will show permissions and owner.
-if you dont give the PATH an error message will indicate Command not found.
+![echo$PATH](https://i.imgur.com/hK9iAqH.png)  
 
-	-rw-r--r--  1 user  staff   1107 Aug 24 02:21 break_input.c
-	-rw-r--r--  1 user  staff    323 Aug 24 02:18 builtins.c
-	-rw-r--r--  1 user  staff   1345 Aug 24 02:37 main.c
-	-rwxr--r--  1 user  staff    782 Aug 19 23:35 man_1_simple_shell
-	-rw-r--r--  1 user  staff    580 Aug 24 02:15 simple_shell.h
-	-rw-r--r--  1 user  staff    566 Aug 24 02:12 str_comp.c
+    The **stat** system call gets the status of a file.  If successful, it returns a zero but if fail, it returns -1.  For example, an user could run the following main function to obtain the status of the **ls** command file.  
+  
+```C
+int main(int argc, char **argv)
+{
+	int i;
+	struct stat status;
 
-### Non interactive mode
-At the TERMINAL prompt outside the hsh program type: `echo "/bin/ls" | ./hsh`
+	for (i = 1; 1 < argc; i++)
+	{
+		if (stat(argv[i], &status) == 0)
+		{
+			printf(%s is a file\n", argv[i]);
+		}
+	}
+	return (0);
+}
+```
+![stat](https://i.imgur.com/HPE5nuP.png)
 
-That will send the instructions via pipe to ./hsh as arguments
+11. How to execute another program with the **execve** system call?  
+**execve** is a system call that executes another program with the current process' memory.  Essentially, it replaces the current process image with new ones.  Upon success, it returns nothing and upon fail, it returns -1.  
 
-The result should be the same as typing /bin/ls directly in the ./hsh program
+12. How to suspend the execution of a process until one of its children terminates?  
+**wait** is a system call that suspends execution of a process until its children terminates.  It allows the operating system to release the resources associated with the children.  If **wait** isn't called, then the children will be in a zombie state that still fills a space in the kernel.  Upon success, it returns the pid of the terminated child and upon fail, it returns -1.  
 
-### Non interactive mode with arguments
-At the TERMINAL prompt outside the hsh program type: `echo "/bin/ls -l" | ./hsh`
+13. What is **EOF** / “end-of-file”?  
+**EOF** is a macro in the standard input/output header file in C programming.  It's used to mark the end of a file or the last byte of data was read.  Its return value is -1 to indicate that it reached the end of the input stream.  In Unix, the keyboard command for **EOF** is Ctrl+D and in Windows, it's Ctrl+Z.  
 
-That will send the instructions via pipe to ./hsh as arguments
+    The **getline** function reads an entire line from stream and stores it in a buffer.  In turn, the buffer address is stored in a pointer.  Upon success, it returns the number of characters read including the new line but not the null byte.  Upon fail, due to an error or **EOF** was reached, then it returns -1.  
 
-The result should be the same as typing /bin/ls -l directly in the ./hsh program
+    Similarly, the **strtok** function reads a string and delimits it.  Once delimited, the string is broken up into "tokens" with a null byte at the end of each.  Upon success, it returns a pointer to the next token, but upon fail, it returns NULL.  
 
-### Built ins
-Two builtins were implemented `env` and `exit`
-### env
-Display the vars in environ one by line.
-Type **env** at the prompt of ./hsh program
-You should see something like that in your screen
+# Specifications #
+0. **README**, **man**, **AUTHORS**  
+    1. Contains a **README**.  
+	2. Contains a **man** page for simple shell.  
+	3. Contains an **AUTHORS** file at the root of your repository, listing all individuals having contributed content to the repository.  
 
-	TERM_PROGRAM=Apple_Terminal
-	SHELL=/bin/bash
-	TERM=xterm-256color
-	TMPDIR=/var/folders/x3/99rxpk913hs7crrhgqyrc4gw0000gn/T/
-	TERM_PROGRAM_VERSION=433
-	OLDPWD=/Users/user
-	TERM_SESSION_ID=40476BB1-FE99-4432-8EEF-5B7E19E0099A
-	USER=user
-	SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.UHyOZuZfWC/Listeners
-	PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands
-	PWD=/Users/user/simple_shell
-	XPC_FLAGS=0x0
-	XPC_SERVICE_NAME=0
-	SHLVL=1
-	HOME=/Users/user
-	LOGNAME=user
-	LC_CTYPE=UTF-8
-	_=./hsh
+1. Betty would be proud  
+    1. Program code that's in compliance with Betty programming language style.  
 
-### exit
-End the execution of ./hsh program
-Type **exit** at the prompt of ./hsh program
-The prompt get back to the TERMINAL
+2. Test suite  
+    1. Contribute to a test repository.  
 
-#### Special Thanks to
+3. Simple shell 0.1  
+    1. Program code for simple shell implementation.  
+	2. Simple shell displays a prompt and wait for user to type a command.  The command line always ends with a new line.  
+	3. The prompt will display again after a command was executed.  
+	4. The command lines are simple (no semicolons, no pipes, no redirections, etc.).  
+	5. The command lines are made only of one word (no arguments).  
+	6. Prints an error message and display the prompt again if an executable isn't found.  
+	7. Handle errors.  
+	8. Handle **EOF**.  
 
-	https://github.com/JuanDAC
+4. Handle command lines with arguments.  
 
-for all the help
+5. Handle the **PATH**.  
 
-## Made the Holberton way, always give first.
+6. Implement the **exit** built-in, that exits the shell.  
 
+7. Implement the **env** built-in, that prints the current environment.  
 
+# Flowchart #
+The work flow of the simple shell relies on helper functions called in the main function.  The main function will first call write to display the prompt.  The read line helper function will read the single world command from the command line.  Next, the parse line helper function will match the command to a directory in PATH.  If found, it will fork a child process and use execve to execute the program.  If not found, then it's a built-in command that doesn't need a new process and will be executed immediately.  Either way, the simple shell will display an output and exit.  
+
+![flowchart](https://i.imgur.com/nSQaaQj.jpg)
+
+# Example #
+![ls](https://i.imgur.com/3pbwnHm.png)
+
+# Resources #
+0. man pages:  
+man sh  
+man ls  
+man env  
+man printenv  
+man stat  
+man 2 execve  
+man 2 getpid  
+man 2 getline  
+man 2 fork  
+man 2 wait  
+man 2 execve  
+man 3 getenv  
+man 3 strtok  
+man 5 environ  
+
+1. Unix shell  
+<https://en.wikipedia.org/wiki/Unix_shell>
+
+2. Thompson shell  
+<https://en.wikipedia.org/wiki/Thompson_shell>
+
+3. Ken Thompson  
+<https://en.wikipedia.org/wiki/Ken_Thompson>
+
+4. Why are system calls expensive in operating systems?  
+<https://www.quora.com/Why-are-system-calls-expensive-in-operating-systems>
+
+5. What are PID and PPID?
+<https://delightlylinux.wordpress.com/2012/06/25/what-is-pid-and-ppid/>
+
+6. What is the Difference Between System Call and Function Call
+<https://pediaa.com/what-is-the-difference-between-system-call-and-function-call/>
+
+7. fork() in C
+<https://www.geeksforgeeks.org/fork-system-call/>
+
+8. CS360 Lecture notes -- Introduction to System Calls (I/O System Calls)
+<https://web.eecs.utk.edu/~mbeck/classes/cs560/360/notes/Syscall-Intro/lecture.html>
+
+9. What is EOF in C?
+<https://www.quora.com/What-is-EOF-in-C>
+
+10. What does $PATH mean?
+<https://askubuntu.com/questions/551990/what-does-path-mean>
+
+11. What Exactly is Your Shell PATH?
+<https://medium.com/@jalendport/what-exactly-is-your-shell-path-2f076f02deb4>
+
+12. Shell and Environment Variables
+<https://www.cs.odu.edu/~zeil/cs252/latest/Public/envvariables/index.html>
+
+13. ls
+<https://en.wikipedia.org/wiki/Ls>
+
+14. Input/Output on Streams
+<http://kirste.userpage.fu-berlin.de/chemnet/use/info/libc/libc_7.html>
+
+# Authors #
+Abdulrazaq Babi <Babigdk@gmail.com.com>
+Akanimo Asuquo <wizbrandiakanimo@gmail.com>
